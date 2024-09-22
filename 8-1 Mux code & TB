@@ -1,0 +1,53 @@
+module Mux_8to1_gate(o, i, s);
+    input [7:0] i;     // Input data
+    input [2:0] s;     // Select lines
+    output o;          // Output
+   
+    wire ns0, ns1, ns2;
+    wire y0, y1, y2, y3, y4, y5, y6, y7;
+   
+    // Inverting the select lines
+    not N1(ns0, s[0]);
+    not N2(ns1, s[1]);
+    not N3(ns2, s[2]);
+   
+    // Implementing the AND gates
+    and i1(y0, i[0], ns2, ns1, ns0);   // i[0] selected when s = 000
+    and i2(y1, i[1], ns2, ns1,  s[0]); // i[1] selected when s = 001
+    and i3(y2, i[2], ns2,  s[1], ns0); // i[2] selected when s = 010
+    and i4(y3, i[3], ns2,  s[1],  s[0]); // i[3] selected when s = 011
+    and i5(y4, i[4],  s[2], ns1, ns0); // i[4] selected when s = 100
+    and i6(y5, i[5],  s[2], ns1,  s[0]); // i[5] selected when s = 101
+    and i7(y6, i[6],  s[2],  s[1], ns0); // i[6] selected when s = 110
+    and i8(y7, i[7],  s[2],  s[1],  s[0]); // i[7] selected when s = 111
+   
+    // Implementing the OR gate
+    or O1(o, y0, y1, y2, y3, y4, y5, y6, y7);
+   
+endmodule
+
+//tb
+
+module muxtb;
+   reg [2:0] s;
+   reg [7:0] i;
+   wire o;
+   
+   // Instantiate the Device Under Test (DUT)
+   Mux_8to1_gate uut (
+       .o(o),
+       .i(i),
+       .s(s)
+   );
+   
+   initial begin
+       #10 i = 8'b00000001; s = 3'b000;
+       #10 i = 8'b00000010; s = 3'b001;
+       #10 i = 8'b00000100; s = 3'b010;
+       #10 i = 8'b00001000; s = 3'b011;
+       #10 i = 8'b00010000; s = 3'b100;
+       #10 i = 8'b00100000; s = 3'b101;
+       #10 i = 8'b01000000; s = 3'b110;
+       #10 i = 8'b10000000; s = 3'b111;
+   end
+endmodule
