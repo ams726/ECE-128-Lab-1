@@ -1,0 +1,103 @@
+// 4-1 Structual
+
+`timescale 1ns / 1ps
+module Mux_4to1_2bit(o, i0,i1,i2,i3, s);
+  input [1:0] i0,i1,i2,i3;  // 4 inputs, each 2 bits wide
+  input [1:0] s;       // 2-bit select signal
+  output [1:0] o;      // 2-bit output
+
+
+  wire NS0, NS1;
+  wire [1:0] Y0, Y1, Y2, Y3;
+
+
+  // Inverting the select lines
+  not N1(NS0, s[0]);
+  not N2(NS1, s[1]);
+
+
+  // AND gates for each bit of the inputs
+  and A1_0(Y0[0], i0[0], NS1, NS0);
+  and A1_1(Y0[1], i0[1], NS1, NS0);
+
+
+  and A2_0(Y1[0], i1[0], NS1, s[0]);
+  and A2_1(Y1[1], i1[1], NS1, s[0]);
+
+
+  and A3_0(Y2[0], i2[0], s[1], NS0);
+  and A3_1(Y2[1], i2[1], s[1], NS0);
+
+
+  and A4_0(Y3[0], i3[0], s[1], s[0]);
+  and A4_1(Y3[1], i3[1], s[1], s[0]);
+
+
+  // OR gates for each bit of the output
+  or O1_0(o[0], Y0[0], Y1[0], Y2[0], Y3[0]);
+  or O1_1(o[1], Y0[1], Y1[1], Y2[1], Y3[1]);
+
+
+endmodule
+/// 4-1 behavioural
+
+`timescale 1ns / 1ps
+
+module behv_mux_4_1(
+    input [1:0] i0, i1, i2, i3, // 4 inputs, each 2 bits wide
+    input [1:0] s,              // 2-bit select signal
+    output reg [1:0] o          // 2-bit output
+);
+
+    always @(*) begin
+        case(s)
+            2'b00: o = i0;
+            2'b01: o = i1;
+            2'b10: o = i2;
+            2'b11: o = i3;
+            default: o = 2'b00; // Default case for safety (optional)
+        endcase
+    end
+Endmodule
+
+
+
+
+`timescale 1ns/1ps
+
+
+module tb_Mux_4to1_2bit;
+  reg [1:0] i0,i1,i2,i3;
+  reg [1:0] s;      
+  wire [1:0] o;    
+
+
+ 
+  Mux_4to1_2bit uut (.i0(i0),.i1(i1),.i2(i2),.i3(i3), .s(s),.o(o));
+
+
+  // Test procedure
+  initial begin
+   
+    $monitor("Time = %0t | i = %b | s = %b | o = %b", $time, i0,i1,i2,i3,, s, o);
+
+
+    #10
+    i0 = 4'b0000;i1 = 4'b0001;i2 = 4'b0010;i3 = 4'b0011;
+
+
+   
+    s = 2'b00; #10;
+    s = 2'b01; #10;
+    s = 2'b10; #10;
+    s = 2'b11; #10;
+
+
+    // Finish the test
+    $finish;
+  end
+
+
+endmodule
+
+
